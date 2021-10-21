@@ -1,0 +1,23 @@
+{
+    "name": "ale10257/yii2-sortable-widget",
+    "description": "Easy sortable Yii2 widget",
+    "type": "library",
+    "require": {
+        "yiisoft/yii2": "*",
+        "yiisoft/yii2-jui": "*",
+        "php": ">=7.4"
+    },
+    "license": "BSD-3-Clause",
+    "minimum-stability": "stable",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ale10257\\sortable\\": "src"
+        }
+    }
+}
