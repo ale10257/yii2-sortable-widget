@@ -1,4 +1,4 @@
-### Простой yii2 sortable виджет, на основе jquery sortable yii
+### Простой yii2 sortable виджет, на основе jquery sortable ui
 
 В состав виджета включен SortableService для работы с Postgres DB. С другими БД работать не будет.
 
