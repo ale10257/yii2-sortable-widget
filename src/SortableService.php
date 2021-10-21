@@ -60,7 +60,7 @@ class SortableService extends BaseObject
      */
     public function addToEnd()
     {
-        $max = ($this->model::find()->where($this->condition)->max($this->sortField));
+        $max = $this->model::find()->where($this->condition)->max($this->sortField);
         if ($max == $this->model->{$this->sortField}) {
             return;
         }
