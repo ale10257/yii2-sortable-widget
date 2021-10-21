@@ -59,7 +59,7 @@ $sortableService->changeSort();
 ```php
 $sortableJs = new ale10257\sortable\SortableJs();
 $sortableJs->cssSelector = '.sortable';
-$sortableJs->ajaxUrl = \yii\helpers\Url::to['sort'];
+$sortableJs->ajaxUrl = \yii\helpers\Url::to(['sort']);
 $sortableJs->registerJs();
 ```
 При использовании GridView
@@ -73,7 +73,7 @@ echo SortableGridView::widget(
         'rowOptions' => function (\yii\db\ActiveRecord $model) {
             return ['data-id' => $model->id];;
         },
-        'ajaxUrl' => \yii\helpers\Url::to('sort'),
+        'ajaxUrl' => \yii\helpers\Url::to(['sort']),
         ...
     ]
 );
