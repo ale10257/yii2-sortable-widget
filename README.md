@@ -86,7 +86,8 @@ echo SortableGridView::widget(
         return [
             'sort' => [
                 'class' => \ale10257\sortable\SortAction::class,
-                'modelClass' => MyActiveRecordModel::class
+                'modelClass' => MyActiveRecordModel::class,
+                //'sortField' => 'MyActiveRecordModeFieldSortName' по умолчанию название поля для сортировки sort
             ]
         ];
     }
