@@ -2,18 +2,23 @@
 
 namespace ale10257\sortable;
 
+use InvalidArgumentException;
 use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
-use yii\db\QueryBuilder;
+use yii\db\Expression;
+use yii\db\Query;
 use Yii;
 
 class SortableService extends BaseObject
 {
     public string $sortField = 'sort';
-    /** ID записи ПЕРЕД которой должна встать модель */
+    /** ID записи после которой должна встать модель */
     public ?int $position = null;
-    public array $condition = [];
+    /**
+     * @var array|string
+     */
+    public $condition;
 
     private ?int $newSortValue = null;
     private ActiveRecord $model;
@@ -34,11 +39,15 @@ class SortableService extends BaseObject
             if ($this->position == 0) {
                 $this->newSortValue = 1;
             } else {
-                $this->newSortValue = ($this->model::find()
-                        ->where($this->condition)
-                        ->andWhere(['id' => $this->position])
-                        ->select($this->sortField)
-                        ->scalar()) + 1;
+                $prev = $this->model::find()
+                    ->where($this->condition)
+                    ->andWhere(['id' => $this->position])
+                    ->select($this->sortField)
+                    ->scalar();
+                if (!$prev) {
+                    throw new InvalidArgumentException("Record with id = $this->position not found");
+                }
+                $this->newSortValue = ++$prev;
             }
         }
         $this->model->{$this->sortField} = $this->newSortValue;
@@ -73,14 +82,17 @@ class SortableService extends BaseObject
      */
     public function updateSort()
     {
-        $params = [];
-        $where = (new QueryBuilder(Yii::$app->db))->buildWhere($this->condition, $params);
+        $condition = $this->model instanceof ISortableModel ? $this->model->sortableCondition() : $this->condition;
+        $select = (new Query())
+            ->from($this->model::tableName())
+            ->select(new Expression("id, rank() OVER (ORDER BY $this->sortField, id) * 10 AS newsort"))
+            ->where($condition)
+            ->createCommand()
+            ->getRawSql();
         /** @noinspection SqlInsertValues */
         $sql = "
             INSERT INTO {$this->model::tableName()} (id, $this->sortField)
-            SELECT id, rank() OVER (ORDER BY $this->sortField, id) * 10 AS newsort
-            FROM {$this->model::tableName()}
-            $where
+            $select
             ON CONFLICT (id)
                 DO UPDATE
                 SET $this->sortField = EXCLUDED.$this->sortField;

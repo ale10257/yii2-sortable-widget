@@ -8,6 +8,4 @@ interface ISortableModel
      * @return string|array
      */
     public function sortableCondition();
-
-    public function getSortableService(): SortableService;
 }

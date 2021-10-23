@@ -2,28 +2,19 @@
 
 namespace ale10257\sortable;
 
-use yii\base\BaseObject;
 use yii\base\InvalidArgumentException;
+use yii\base\Widget;
 use yii\jui\JuiAsset;
-use yii\web\View;
-use Yii;
 
-class SortableJs extends BaseObject
+class SortableJsWidget extends Widget
 {
     public ?string $cssSelector = null;
     public ?string $ajaxUrl = null;
 
-    private ?View $view = null;
-
-    public function init()
+    public function run()
     {
-        parent::init();
-        $this->view = Yii::$app->getView();
-        JuiAsset::register($this->view);
-    }
-
-    public function registerJs()
-    {
+        $view = $this->getView();
+        JuiAsset::register($view);
         if (!$this->cssSelector) {
             throw new InvalidArgumentException('Unknown css selector');
         }
@@ -58,20 +49,22 @@ class SortableJs extends BaseObject
                     sortable.sortable({
                         cursor: 'move',
                         update: (event, ui) => {
-                            let prev = ui.item.prev()
                             if (ui.item.data('excluded') !== undefined) {
-                                alert('Нельзя изменять неактивные позиции!')
+                                alert('You cannot change inactive positions!')
                                 return false
+                            }                            
+                            if (url) {
+                                let prev = ui.item.prev()
+                                let position = prev.length === 0 ? 0 : prev.data('id')
+                                let id = ui.item.data('id')
+                                $.post(url, {id, position})                                
                             }
-                            let position = prev.length === 0 ? 0 : prev.data('id')
-                            let id = ui.item.data('id')
-                            $.post(url, {id, position})
                         },
                         delay: 200
                     })
                 })
             })
         ";
-        $this->view->registerJs($js);
+        $view->registerJs($js);
     }
 }

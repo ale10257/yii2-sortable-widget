@@ -13,6 +13,7 @@ class SortAction extends Action
 {
     public ?string $modelClass = null;
     public ?string $sortField = null;
+    public ?string $conditionAttribute = null;
 
     /**
      * @throws Exception
@@ -27,15 +28,14 @@ class SortAction extends Action
             if (!$model instanceof ActiveRecord) {
                 throw new InvalidArgumentException('Model must be instanceof ActiveRecord');
             }
-            if (!$model instanceof ISortableModel) {
-                throw new InvalidArgumentException('Model must be instanceof ISortableModel');
-            }
             $model = $model::findOne($post['id']);
             if (!$model) {
                 throw new NotFoundHttpException();
             }
             $sortableService = new SortableService($model);
-            $sortableService->condition = $model->sortableCondition();
+            if ($this->conditionAttribute) {
+                $sortableService->condition = [$this->conditionAttribute => $model->{$this->conditionAttribute}];
+            }
             $sortableService->position = $post['position'];
             if ($this->sortField) {
                 $sortableService->sortField = $this->sortField;
