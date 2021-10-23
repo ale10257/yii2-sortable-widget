@@ -112,6 +112,11 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
         $sortableService->updateSort();
     }
 }
+```
 
+**Unit тесты (запустить команду в папке с проектом):**
+
+```
+docker-compose up -d && docker-compose run --rm php composer cr && docker-compose run --rm php bash -c './vendor/bin/codecept run unit' && docker-compose down
 ```
 
