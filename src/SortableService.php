@@ -14,7 +14,7 @@ class SortableService extends BaseObject
 {
     public string $sortField = 'sort';
     /** ID записи после которой должна встать модель */
-    public ?int $position = null;
+    public ?int $previous_id = null;
     /**
      * @var array|string
      */
@@ -36,16 +36,16 @@ class SortableService extends BaseObject
     {
         $this->updateSort();
         if (!$this->newSortValue) {
-            if ($this->position == 0) {
+            if ($this->previous_id == 0) {
                 $this->newSortValue = 1;
             } else {
                 $prev = $this->model::find()
                     ->where($this->condition)
-                    ->andWhere(['id' => $this->position])
+                    ->andWhere(['id' => $this->previous_id])
                     ->select($this->sortField)
                     ->scalar();
                 if (!$prev) {
-                    throw new InvalidArgumentException("Record with id = $this->position not found");
+                    throw new InvalidArgumentException("Record with id = $this->previous_id not found");
                 }
                 $this->newSortValue = ++$prev;
             }

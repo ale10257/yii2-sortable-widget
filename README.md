@@ -104,8 +104,8 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
         // запись будет последней в списке
         $sortableService->addToEnd();
         
-        // запись в списке будет выведена после записи с id = 1, т.е. $sortableService->position - это id предыдущей записи
-        $sortableService->position = 1;
+        // запись в списке будет выведена после записи с id = 1
+        $sortableService->previous_id = 1;
         $sortableService->changeSort();
         
         // упорядочить записи в БД, например, когда в поле sort есть пустые значения

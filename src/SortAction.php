@@ -22,7 +22,7 @@ class SortAction extends Action
     public function run()
     {
         $post = Yii::$app->request->post();
-        if (!empty($post['id']) && is_numeric($post['position'])) {
+        if (!empty($post['id']) && is_numeric($post['previous_id'])) {
             /** @var ActiveRecord $model */
             $model = new $this->modelClass();
             if (!$model instanceof ActiveRecord) {
@@ -36,7 +36,7 @@ class SortAction extends Action
             if ($this->conditionAttribute) {
                 $sortableService->condition = [$this->conditionAttribute => $model->{$this->conditionAttribute}];
             }
-            $sortableService->position = $post['position'];
+            $sortableService->previous_id = $post['previous_id'];
             if ($this->sortField) {
                 $sortableService->sortField = $this->sortField;
             }

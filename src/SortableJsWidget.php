@@ -55,9 +55,9 @@ class SortableJsWidget extends Widget
                             }                            
                             if (url) {
                                 let prev = ui.item.prev()
-                                let position = prev.length === 0 ? 0 : prev.data('id')
+                                let previous_id = prev.length === 0 ? 0 : prev.data('id')
                                 let id = ui.item.data('id')
-                                $.post(url, {id, position})                                
+                                $.post(url, {id, previous_id})                                
                             }
                         },
                         delay: 200

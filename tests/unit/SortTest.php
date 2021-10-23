@@ -64,7 +64,7 @@ class SortTest extends Unit
 
         $model = $this->getModel(1);
         $service = $this->getService($model);
-        $service->position = 3;
+        $service->previous_id = 3;
         $service->changeSort();
         $models = $this->getModels();
         $this->tester->assertEquals(3, $models[0]->id);
@@ -127,5 +127,5 @@ class SortTest extends Unit
         $this->tester->assertEquals(10, $models[0]->sort);
         $this->tester->assertEquals(20, $models[1]->sort);
         $this->tester->assertEquals(30, $models[2]->sort);
-    } 
+    }
 }
