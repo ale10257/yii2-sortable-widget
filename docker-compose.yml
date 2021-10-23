@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+  php:
+    build:
+      context: docker/php
+      args:
+        - DOCKER_YII2_PHP_IMAGE
+    working_dir: /app
+    volumes:
+      - .:/app
+  db-sort:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}

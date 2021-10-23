@@ -53,6 +53,7 @@ class SortableService extends BaseObject
         $this->model->{$this->sortField} = $this->newSortValue;
         $this->model->save();
         $this->updateSort();
+        $this->model->refresh();
     }
 
     /**

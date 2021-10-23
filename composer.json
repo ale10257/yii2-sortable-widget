@@ -17,7 +17,15 @@
     ],
     "autoload": {
         "psr-4": {
-            "ale10257\\sortable\\": "src"
+            "ale10257\\sortable\\": "src",
+            "app\\tests": "tests"
         }
+    },
+    "require-dev": {
+        "codeception/codeception": "^4.1",
+        "codeception/module-phpbrowser": "^1.0",
+        "codeception/module-asserts": "^1.3",
+        "codeception/module-yii2": "^1.1",
+        "vlucas/phpdotenv": "^5.3"
     }
 }
