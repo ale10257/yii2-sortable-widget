@@ -18,9 +18,10 @@
 <?php
 use ale10257\sortable\SortableJsWidget;
 use yii\helpers\Url;
+use yii\grid\GridView;
 
 SortableJsWidget::widget([
-    'cssSelector' => '.sortable',
+    'cssSelector' => '.sortable', // cssSelector может быть любым верным css селектором для выборки элементов на странице
     'ajaxUrl' => Url::to(['sort']);
 ])
 // аттрибут data-id обязателен для заполнения
@@ -38,6 +39,16 @@ SortableJsWidget::widget([
         <tr data-id="2" data-excluded="1"><td></td></tr>
     </tbody>
 </table>
+
+<?= GridView::widget([
+...
+    'tableOptions' => ['class' => '... sortable'],
+    'rowOptions' => function (\yii\db\ActiveRecord $model) {
+        return ['data-id' => $model->id];
+    },
+...
+]);
+?>
 ```
 
 В классе контроллера:
