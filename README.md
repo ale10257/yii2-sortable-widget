@@ -22,7 +22,7 @@ use yii\grid\GridView;
 
 SortableJsWidget::widget([
     'cssSelector' => '.sortable', // cssSelector родительского элемента (table|ul), может быть любым верным css селектором для выборки элементов на странице
-    'ajaxUrl' => Url::to(['sort']);
+    'ajaxUrl' => Url::to(['sort'])
 ])
 // аттрибут data-id обязателен для заполнения
 // элементы с аттрибутом data-excluded перетаскиваться не будут
