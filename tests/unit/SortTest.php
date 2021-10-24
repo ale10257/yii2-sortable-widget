@@ -1,7 +1,9 @@
 <?php
 
+use ale10257\sortable\ISortableModel;
 use ale10257\sortable\SortableService;
 use app\tests\models\SortModel;
+use app\tests\models\SortModelI;
 use Codeception\Test\Unit;
 
 class SortTest extends Unit
@@ -10,6 +12,11 @@ class SortTest extends Unit
      * @var \UnitTester
      */
     protected $tester;
+
+    /**
+     * @var string|null|SortModel
+     */
+    private ?string $modelClass = null;
 
     protected function _before()
     {
@@ -32,18 +39,27 @@ class SortTest extends Unit
     {
     }
 
-    /**
-     * @throws \yii\db\Exception
-     */
     public function testSort()
     {
+        $this->modelClass = SortModel::class;
+        $this->sort();
+    }
+
+    public function testSortI()
+    {
+        $this->modelClass = SortModelI::class;
+        $this->sort();
+    }
+
+    private function sort()
+    {
         // parent_id is null
-        $model = $this->getModel(1);
+        $model = $this->getModel();
         $service = $this->getService($model);
         $service->updateSort();
         $models = $this->getModels();
         $this->checkSortOrder($models);
-        
+
         $model = $this->getModel(3);
         $service = $this->getService($model);
         $service->addToBeginning();
@@ -66,12 +82,13 @@ class SortTest extends Unit
         $service = $this->getService($model);
         $service->previous_id = 3;
         $service->changeSort();
+        $this->tester->assertEquals(20, $model->sort);
         $models = $this->getModels();
         $this->tester->assertEquals(3, $models[0]->id);
         $this->tester->assertEquals(1, $models[1]->id);
         $this->tester->assertEquals(2, $models[2]->id);
         $this->checkSortOrder($models);
-        
+
         // parent_id is integer
         $model = $this->getModel(5);
         $service = $this->getService($model);
@@ -104,18 +121,20 @@ class SortTest extends Unit
      */
     private function getModels(?int $parent_id = null): array
     {
-        return SortModel::find()->where(['parent_id' => $parent_id])->orderBy(['sort' => SORT_ASC])->all();
+        return $this->modelClass::find()->where(['parent_id' => $parent_id])->orderBy(['sort' => SORT_ASC])->all();
     }
 
-    private function getModel(int $id): ?SortModel
+    private function getModel(int $id = null): ?SortModel
     {
-        return SortModel::findOne($id);
+        return $id ? $this->modelClass::findOne($id) : new $this->modelClass();
     }
 
     private function getService(SortModel $model): SortableService
     {
         $service = new SortableService($model);
-        $service->condition = ['parent_id' => $model->parent_id];
+        if (!$model instanceof ISortableModel) {
+            $service->condition = ['parent_id' => $model->parent_id];
+        }
         return $service;
     }
 

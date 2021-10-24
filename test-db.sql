@@ -10,5 +10,5 @@ CREATE TABLE public.sort
 ALTER TABLE public.sort
     ADD CONSTRAINT sort_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY public.sort
+ALTER TABLE public.sort
     ADD CONSTRAINT fk_sort_parent_id FOREIGN KEY (parent_id) REFERENCES public.sort(id) ON UPDATE CASCADE ON DELETE CASCADE;
