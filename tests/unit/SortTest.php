@@ -17,6 +17,7 @@ class SortTest extends Unit
      * @var string|null|SortModel
      */
     private ?string $modelClass = null;
+    private bool $condition = true;
 
     protected function _before()
     {
@@ -49,6 +50,21 @@ class SortTest extends Unit
     {
         $this->modelClass = SortModelI::class;
         $this->sort();
+    }
+
+    public function testSortWithoutCondition()
+    {
+        $this->modelClass = SortModel::class;
+        $this->condition = false;
+        $model = $this->getModel();
+        $service = $this->getService($model);
+        $service->updateSort();
+        $models = $this->getModels();
+        $sort = 10;
+        foreach ($models as $model) {
+            $this->tester->assertEquals($sort, $model->sort);
+            $sort += 10;
+        }
     }
 
     private function sort()
@@ -121,7 +137,11 @@ class SortTest extends Unit
      */
     private function getModels(?int $parent_id = null): array
     {
-        return $this->modelClass::find()->where(['parent_id' => $parent_id])->orderBy(['sort' => SORT_ASC])->all();
+        $query = $this->modelClass::find()->orderBy(['sort' => SORT_ASC]);
+        if ($this->condition) {
+            $query->where(['parent_id' => $parent_id]);
+        }
+        return $query->all();
     }
 
     private function getModel(int $id = null): ?SortModel
@@ -132,7 +152,7 @@ class SortTest extends Unit
     private function getService(SortModel $model): SortableService
     {
         $service = new SortableService($model);
-        if (!$model instanceof ISortableModel) {
+        if ($this->condition && !$model instanceof ISortableModel) {
             $service->condition = ['parent_id' => $model->parent_id];
         }
         return $service;
