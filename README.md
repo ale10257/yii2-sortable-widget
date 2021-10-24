@@ -29,8 +29,8 @@ SortableJsWidget::widget([
 ?>
 
 <ul class="sortable">
-<li data-id="1"></li>
-<li data-id="2"></li>
+    <li data-id="1"></li>
+    <li data-id="2"></li>
 </ul>
 
 <table class="sortable">
@@ -108,7 +108,7 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
         $sortableService->previous_id = 1;
         $sortableService->changeSort();
         
-        // упорядочить записи в БД, например, когда в поле sort есть пустые значения
+        // просто упорядочить записи в БД, например, когда в поле sort есть пустые значения
         $sortableService->updateSort();
     }
 }
