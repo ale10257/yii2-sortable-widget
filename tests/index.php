@@ -11,4 +11,3 @@ try {
     $dotenv->load();
 } catch (\Exception $e) {
 }
-

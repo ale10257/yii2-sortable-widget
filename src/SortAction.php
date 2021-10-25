@@ -22,7 +22,7 @@ class SortAction extends Action
     public function run()
     {
         $post = Yii::$app->request->post();
-        if (!empty($post['id']) && is_numeric($post['previous_id'])) {
+        if (!empty($post['id']) && !empty($post['previous_id']) && is_numeric($post['previous_id'])) {
             /** @var ActiveRecord $model */
             $model = new $this->modelClass();
             if (!$model instanceof ActiveRecord) {

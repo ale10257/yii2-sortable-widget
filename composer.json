@@ -25,7 +25,7 @@
     "autoload": {
         "psr-4": {
             "ale10257\\sortable\\": "src",
-            "app\\tests\\": "tests"
+            "tests\\": "tests"
         }
     }
 }

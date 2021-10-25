@@ -2,8 +2,8 @@
 
 use ale10257\sortable\ISortableModel;
 use ale10257\sortable\SortableService;
-use app\tests\models\SortModel;
-use app\tests\models\SortModelI;
+use tests\models\SortModel;
+use tests\models\SortModelI;
 use Codeception\Test\Unit;
 
 class SortTest extends Unit
@@ -21,8 +21,11 @@ class SortTest extends Unit
 
     protected function _before()
     {
-        $test_db = dirname(dirname(__DIR__)) . '/test_db.php';
-        `php $test_db`;
+        Yii::$app->db->createCommand()->createTable(SortModel::tableName(), [
+            'id' => 'pk',
+            'parent_id' => 'integer',
+            'sort' => 'integer'
+        ])->execute();
         for ($parent_id = 1; $parent_id < 4; $parent_id++) {
             $model = new SortModel();
             $model->id = $parent_id;
@@ -38,6 +41,7 @@ class SortTest extends Unit
 
     protected function _after()
     {
+        Yii::$app->db->createCommand()->dropTable(SortModel::tableName())->execute();
     }
 
     public function testSort()
@@ -109,25 +113,10 @@ class SortTest extends Unit
         $model = $this->getModel(5);
         $service = $this->getService($model);
         $service->updateSort();
-        $models = $this->getModels();
-        $this->checkSortOrder($models);
-
-        $model = $this->getModel(7);
-        $service = $this->getService($model);
-        $service->addToBeginning();
         $models = $this->getModels(1);
-        $this->tester->assertEquals(7, $models[0]->id);
-        $this->tester->assertEquals(5, $models[1]->id);
-        $this->tester->assertEquals(6, $models[2]->id);
-        $this->checkSortOrder($models);
-
-        $model = $this->getModel(5);
-        $service = $this->getService($model);
-        $service->addToEnd();
-        $models = $this->getModels(1);
-        $this->tester->assertEquals(7, $models[0]->id);
+        $this->tester->assertEquals(5, $models[0]->id);
         $this->tester->assertEquals(6, $models[1]->id);
-        $this->tester->assertEquals(5, $models[2]->id);
+        $this->tester->assertEquals(7, $models[2]->id);
         $this->checkSortOrder($models);
     }
 
