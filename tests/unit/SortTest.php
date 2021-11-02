@@ -157,6 +157,12 @@ class SortTest extends Unit
         $service->changeSort();
         $models = $this->getModels();
         $this->tester->assertEquals($startUuid, $models[2]->id);
+
+        $service = $this->getService($models[2]);
+        $service->previous_id = 0;
+        $service->changeSort();
+        $models = $this->getModels();
+        $this->tester->assertEquals($startUuid, $models[0]->id);
     }
 
     /**
