@@ -19,7 +19,7 @@ class SortModel extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['id', 'sort', 'parent_id'], 'integer'],
+            [['id', 'sort', 'parent_id'], 'safe'],
             [['id'], 'required'],
         ];
     }

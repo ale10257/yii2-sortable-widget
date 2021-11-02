@@ -3,18 +3,17 @@
 namespace ale10257\sortable;
 
 use InvalidArgumentException;
-use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\Expression;
 use yii\db\Query;
 use Yii;
 
-class SortableService extends BaseObject
+class SortableService
 {
     public string $sortField = 'sort';
-    /** ID записи после которой должна встать модель */
-    public ?int $previous_id = null;
+    /** @var int|string ID записи после которой должна встать модель, если ноль, то модель встает в начале списка */
+    public $previous_id = null;
     /**
      * @var array|string
      */
@@ -23,10 +22,9 @@ class SortableService extends BaseObject
     private ?int $newSortValue = null;
     private ActiveRecord $model;
 
-    public function __construct(ActiveRecord $model, $config = [])
+    public function __construct(ActiveRecord $model)
     {
         $this->model = $model;
-        parent::__construct($config);
     }
 
     /**
@@ -36,7 +34,10 @@ class SortableService extends BaseObject
     {
         $this->updateSort();
         if (!$this->newSortValue) {
-            if ($this->previous_id == 0) {
+            if (is_numeric($this->previous_id) && $this->previous_id < 0) {
+                throw new InvalidArgumentException('Previous id must not be less than zero');
+            }
+            if (is_numeric($this->previous_id) && $this->previous_id == 0) {
                 $this->newSortValue = 1;
             } else {
                 $prev = $this->model::find()
