@@ -16,24 +16,23 @@
 
 ```php
 <?php
-use ale10257\sortable\SortableJsWidget;
+use ale10257\sortable\SortableAsset;
 use yii\helpers\Url;
 use yii\grid\GridView;
 
-SortableJsWidget::widget([
-    'cssSelector' => '.sortable', // cssSelector родительского элемента (table|ul), может быть любым верным css селектором для выборки элементов на странице
-    'ajaxUrl' => Url::to(['sort'])
-])
-// аттрибут data-id обязателен для заполнения
+SortableAsset::register($this);
+
+// аттрибуты data-id и data-url обязательны для заполнения
 // элементы с аттрибутом data-excluded перетаскиваться не будут
+// класс родительского элемента должен быть sortable
 ?>
 
-<ul class="sortable">
+<ul data-url="<?= Url::to(['sort']) ?>" class="sortable">
     <li data-id="1"></li>
     <li data-id="2"></li>
 </ul>
 
-<table class="sortable">
+<table data-url="<?= Url::to(['sort']) ?>" class="sortable">
     <tbody>
         <tr data-id="1"><td></td></tr>
         <tr data-id="2" data-excluded="1"><td></td></tr>
@@ -42,7 +41,7 @@ SortableJsWidget::widget([
 
 <?= GridView::widget([
 ...
-    'tableOptions' => ['class' => '... sortable'],
+    'tableOptions' => ['class' => '... sortable', 'data-url' => Url::to(['sort'])],
     'rowOptions' => function (\yii\db\ActiveRecord $model) {
         return ['data-id' => $model->id];
     },
