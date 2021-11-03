@@ -1,15 +1,11 @@
 <?php
-namespace tests\unit;
 
 use ale10257\sortable\ISortableModel;
 use ale10257\sortable\SortableService;
-use InvalidArgumentException;
+use ale10257\sortable\testModels\SortModel;
+use ale10257\sortable\testModels\SortModelI;
 use Ramsey\Uuid\Uuid;
-use tests\models\SortModel;
-use tests\models\SortModelI;
 use Codeception\Test\Unit;
-use UnitTester;
-use Yii;
 use yii\db\Exception;
 
 class SortTest extends Unit

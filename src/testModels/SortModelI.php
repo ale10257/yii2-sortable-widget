@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\models;
+namespace ale10257\sortable\testModels;
 
 use ale10257\sortable\ISortableModel;
 
