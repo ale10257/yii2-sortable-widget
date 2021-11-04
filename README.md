@@ -16,7 +16,7 @@
 
 ```php
 <?php
-use ale10257\sortable\SortableAsset;
+use ale10257\sortable\SortableWidget;
 use yii\helpers\Url;
 use yii\grid\GridView;
 
@@ -25,7 +25,10 @@ SortableAsset::register($this);
 // аттрибуты data-id и data-url обязательны для заполнения
 // элементы с аттрибутом data-excluded перетаскиваться не будут
 // класс родительского элемента должен быть sortable
+
+SortableWidget::widget();
 ?>
+
 
 <ul data-url="<?= Url::to(['sort']) ?>" class="sortable">
     <li data-id="1"></li>

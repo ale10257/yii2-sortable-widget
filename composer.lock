@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9eaaf2986dadff944e277d1f06d1a97e",
+    "content-hash": "4ca949fff9920e3d1985b65d7b715c51",
     "packages": [
         {
             "name": "bower-asset/inputmask",
@@ -80,6 +80,24 @@
                 "reference": "38c8d3131a82567bfef18da09f7f4db68c84f8a3"
             },
             "type": "bower-asset"
+        },
+        {
+            "name": "bower-asset/sortablejs",
+            "version": "1.14.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SortableJS/Sortable.git",
+                "reference": "4684991aabfdf5cab989427fe204814d99520509"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SortableJS/Sortable/zipball/4684991aabfdf5cab989427fe204814d99520509",
+                "reference": "4684991aabfdf5cab989427fe204814d99520509"
+            },
+            "type": "bower-asset",
+            "license": [
+                "MIT"
+            ]
         },
         {
             "name": "bower-asset/yii2-pjax",

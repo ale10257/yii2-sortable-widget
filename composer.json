@@ -5,7 +5,8 @@
     "require": {
         "yiisoft/yii2": "*",
         "yiisoft/yii2-jui": "*",
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "bower-asset/sortablejs": "^1.14"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
