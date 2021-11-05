@@ -1,12 +1,10 @@
-### Простой yii2 sortable виджет, на основе jquery sortable ui
+### Yi2 sortable виджет, на основе <a href="https://github.com/SortableJS/Sortable">sortablejs</a>
 
-Виджет представляет базовый функционал jquery sortable ui для перетаскивания строк таблицы (в таблице должен быть tbody), или элементов списка ul, и сохранения обновленных данных в БД. 
+Виджет представляет обертку над sortablejs, также он умеет сохранять данные, после перетаскивания, в postgres DB. Если вы используете другую БД, то логику сохранения необходимо реализовать самостоятельно.
 
 В модели ActiveRecord должно быть поле sort типа integer. Изначально поле sort может быть не заполнено (null).
 
 После перетаскивания поле sort заполняется верными упорядоченными данными (10, 20, 30 ... 100 ... 1000 ...).
-
-База данных должно быть postgres DB. С другими БД виджет не работает.
 
 Установка ```composer require ale10257/yii2-sortable-widget```
 
@@ -20,15 +18,26 @@ use ale10257\sortable\SortableWidget;
 use yii\helpers\Url;
 use yii\grid\GridView;
 
-SortableAsset::register($this);
-
-// аттрибуты data-id и data-url обязательны для заполнения
+// аттрибут data-id обязателен для заполнения
 // элементы с аттрибутом data-excluded перетаскиваться не будут
-// класс родительского элемента должен быть sortable
+// data-url у родительского элемента - адрес для сохранения порядка сортировки после перетаскивания
 
-SortableWidget::widget();
+SortableWidget::widget([
+//    'cssSelector' => '#my-id', // по умолчанию .sortable
+//     Подробности для pluginOptions на <a href="https://github.com/SortableJS/Sortable">sortablejs</a>
+//    'pluginOptions' => [
+//        'delay' => 150 
+//        'onSort' => '(e) => {}'
+//        ...
+//    ]
+]);
 ?>
 
+<div class="sortable>
+    <p>First</p>
+    <p>Two</p>
+    <p>Three</p>
+</div>
 
 <ul data-url="<?= Url::to(['sort']) ?>" class="sortable">
     <li data-id="1"></li>
