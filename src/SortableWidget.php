@@ -16,19 +16,17 @@ class SortableWidget extends Widget
         }',
         'onEnd' => 'async (e) => {
             if (url) {
-                async function postSendJson(url, data) {
-                    await fetch(url, {
-                        method: \'POST\',
-                        headers: {
-                            \'Content-Type\': \'application/json;charset=utf-8\'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                }                                                                                   
                 let previous = e.to.children[e.newIndex - 1]
-                await postSendJson(url, {
-                    id: e.item.dataset.id,
-                    previous_id: e.newIndex === 0 ? 0 : previous.dataset.id
+                await fetch(url, {
+                    method: \'POST\',
+                    headers: {
+                        \'Content-Type\': \'application/json;charset=utf-8\',
+                        \'X-CSRF-Token\': document.querySelector(\'meta[name="csrf-token"]\').content
+                    },
+                    body: JSON.stringify({
+                        id: e.item.dataset.id,
+                        previous_id: e.newIndex === 0 ? 0 : previous.dataset.id
+                    })
                 })
             }
         }'
