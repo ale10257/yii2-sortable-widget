@@ -10,7 +10,7 @@ abstract class BaseService
     public ?string $sortField = null;
     public int $step;
     /**
-     * @var int|string ID записи после которой должна встать модель, если ноль, то модель встанет в начало списка
+     * @var int|string The ID of the record after which the model should appear, if zero, then the model will appear at the beginning of the list
      */
     public $previous_id = null;
 

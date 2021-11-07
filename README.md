@@ -1,19 +1,18 @@
 ### Yi2 sortable виджет, на основе <a href="https://github.com/SortableJS/Sortable">sortablejs</a>
 
-Виджет представляет обертку над sortablejs. Также в состав виджета входят два сервиса (SortableServicePostgres и SortableService) для работы с БД. Т.е. после перетаскивания элементов на странице, порядок сортировки в БД, также меняется.
+The widget is a wrapper over sortablejs that allows you to drag and drop any elements on the html page
+Also, the widget includes two services (SortableServicePostgres and SortableService) for working with the database. That is, after dragging and dropping elements on the page, the sorting order in the database also changes.
 
-**Отличия сервисов**
+**Service differences**
 
-1. SortableServicePostgres работает только с Postgres DB, SortableService с любой, БД, поддерживаемой Yii2
-2. У SortableServicePostgres шаг сортировки всегда 10, в SortableService шаг можно настроить
+1. SortableServicePostgres works only with Postgres DB, SortableService with any DB supported by Yii2
+2. SortableServicePostgres always has a sorting step of 10, in SortableService the step can be configured
 
-В модели ActiveRecord, с которой работают сервисы, должно быть поле sort типа integer.
+Installing: ```composer require ale10257/yii2-sortable-widget```
 
-Установка ```composer require ale10257/yii2-sortable-widget```
+**Usage**
 
-**Использование**
-
-В файле представления:
+In the View file:
 
 ```php
 <?php
@@ -21,16 +20,21 @@ use ale10257\sortable\SortableWidget;
 use yii\helpers\Url;
 use yii\grid\GridView;
 
-// аттрибут data-id обязателен для заполнения
-// элементы с аттрибутом data-excluded перетаскиваться не будут
-// data-url у родительского элемента - адрес для сохранения порядка сортировки после перетаскивания
+// the data-id attribute is required
+// elements with the data-excluded attribute will not be dragged
+// data-url of the parent element - the address to save the sort order after dragging
 
 SortableWidget::widget([
-//    'cssSelector' => '#my-id', // по умолчанию .sortable
-//     Подробности для pluginOptions на https://github.com/SortableJS/Sortable
+//    'cssSelector' => '#my-id', // default .sortable
+//     Details for pluginOptions at https://github.com/SortableJS/Sortable
 //    'pluginOptions' => [
-//        'delay' => 150 
-//        'onSort' => '(e) => {}'
+//        'delay' => 150, 
+//        'onSort' => '(e) => {}',
+//        'onMove' => '(e) => {
+//            if (e.dragged.dataset.excluded !== undefined) {
+//               return false;
+//            }
+//        }'  
 //        ...
 //    ]
 ]);
@@ -65,7 +69,7 @@ SortableWidget::widget([
 ?>
 ```
 
-В классе контроллера:
+In Controller class:
 
 ```php
     public function actions(): array
@@ -79,7 +83,7 @@ SortableWidget::widget([
     }
 ```
 
-**В модели ActiveRecord необходимо реализовать интерфейс ISortableModel, и прикрепить поведение SortableBehavior**
+**In the ActiveRecord model, you need to implement the ISortableModel interface, and attach the SortableBehavior behavior**
 ```php
 
 class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortableModel 
@@ -91,17 +95,17 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
         ...
             [
                 'class' => \ale10257\sortable\SortableBehavior::class,
-                'serviceClass' => \ale10257\sortable\SortableServicePostgres::class // по умолчанию SortableService,
-                'sortField' => 'my_field', // поле для сортировки, по умолчанию sort
-                'step' => 1, // по умолчанию 10
-                'addToBeginning' => true // по умолчанию false, новые записи добавляются в конец списка
+                'serviceClass' => \ale10257\sortable\SortableServicePostgres::class // default SortableService,
+                'sortField' => 'my_field', // sorting field, default sort
+                'step' => 1, // default 10
+                'addToBeginning' => true // default false, new entries are added to the end of the list
             ]
         ...    
         ];
     }
     
     /**
-    * @return array|string|null условие where для сортировки, например ['parent_id' => $this->parent_id]
+    * @return array|string|null condition WHERE for sort, example ['parent_id' => $this->parent_id]
     */
     public function sortableCondition() 
     {
@@ -110,7 +114,7 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
 }
 ```
 
-Поведение SortableBehavior обрабатывает события afterDelete и afterInsert
+The SortableBehavior behavior handles the afterDelete and afterInsert events
 ```php
     public function events(): array
     {
@@ -121,7 +125,7 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
     }
 ```
 
-Если в своей модели вы также обрабатываете эти события, то логику для изменения порядка сортировки, после создания, или удаления новой записи необходимо реализовать самостоятельно, например:
+If in your model you also handle these events, then the logic for changing the sort order, after creating, or deleting a record, you must implement yourself, for example:
 
 ```php
     public fuction afterDelete
@@ -133,8 +137,7 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
 
 ```
 
-
-**Unit тесты (запустить команду в корне папки с виджетом):**
+**Unit tests (run the command in the root of the widget folder):**
 
 ```
 docker-compose up -d && docker-compose run --rm php composer install && docker-compose run --rm php bash -c './vendor/bin/codecept run unit' && docker-compose down
