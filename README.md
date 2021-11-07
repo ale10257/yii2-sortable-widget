@@ -1,14 +1,17 @@
 ### Yi2 sortable виджет, на основе <a href="https://github.com/SortableJS/Sortable">sortablejs</a>
 
-Виджет представляет обертку над sortablejs, также он умеет сохранять данные, после перетаскивания, в postgres DB. Если вы используете другую БД, то логику сохранения необходимо реализовать самостоятельно.
+Виджет представляет обертку над sortablejs. Также в состав виджета входят два сервиса (SortableServicePostgres и SortableService) для работы с БД. Т.е. после перетаскивания элементов на странице, порядок сортировки в БД, также меняется.
 
-В модели ActiveRecord должно быть поле sort типа integer. Изначально поле sort может быть не заполнено (null).
+**Отличия сервисов**
 
-После перетаскивания поле sort заполняется верными упорядоченными данными (10, 20, 30 ... 100 ... 1000 ...).
+1. SortableServicePostgres работает только с Postgres DB, SortableService с любой, БД, поддерживаемой Yii2
+2. У SortableServicePostgres шаг сортировки всегда 10, в SortableService шаг можно настроить
+
+В модели ActiveRecord, с которой работают сервисы, должно быть поле sort типа integer.
 
 Установка ```composer require ale10257/yii2-sortable-widget```
 
-**Базовое использование**
+**Использование**
 
 В файле представления:
 
@@ -24,7 +27,7 @@ use yii\grid\GridView;
 
 SortableWidget::widget([
 //    'cssSelector' => '#my-id', // по умолчанию .sortable
-//     Подробности для pluginOptions на <a href="https://github.com/SortableJS/Sortable">sortablejs</a>
+//     Подробности для pluginOptions на https://github.com/SortableJS/Sortable
 //    'pluginOptions' => [
 //        'delay' => 150 
 //        'onSort' => '(e) => {}'
@@ -70,60 +73,66 @@ SortableWidget::widget([
         return [
             'sort' => [
                 'class' => \ale10257\sortable\SortAction::class,
-                'modelClass' => MyActiveRecordModel::class,
-                'conditionAttribute' => 'attribute' // необязательное поле, если оно объявлено будет сформировано условие where(['attribute' => $model->attribute]), например where(['parent_id' => $model->parent_id])
-                //'sortField' => 'my_field_sort_name' по умолчанию sort
+                'modelClass' => MyActiveRecordModel::class
             ]
         ];
     }
 ```
 
-Создание, удаление записей в БД на работу сервиса для сортировки ```\ale10257\sortabl\SortableService``` не влияют. Данные в поле sort будут переписаны на верные, после первого перетаскивания.
-
-===============================
-
-**Если условие для выбора полей сортировки более сложное**, чем в примере: ```'conditionAttribute' => 'attribute'```, то в модели ActiveRecord необходимо реализовать интерфейс ISortableModel
+**В модели ActiveRecord необходимо реализовать интерфейс ISortableModel, и прикрепить поведение SortableBehavior**
 ```php
 
 class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortableModel 
 {
-    public function sortableCondition() {
-        // return difficult condition
-    }
-}
-```
 
-С сервисом ```SortableService``` можно работать напрямую из модели
-
-```php
-use ale10257\sortable\SortableServicePostgres
-
-class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortableModel 
-{
-    public function getSortableService() {
-        $service = new SortableServicePostgres($this);
-        $service->condition = $this->sortableCondition();
-        return $service;
+    public function behaviors(): array
+    {
+        return [
+        ...
+            [
+                'class' => \ale10257\sortable\SortableBehavior::class,
+                'serviceClass' => \ale10257\sortable\SortableServicePostgres::class // по умолчанию SortableService,
+                'sortField' => 'my_field', // поле для сортировки, по умолчанию sort
+                'step' => 1, // по умолчанию 10
+                'addToBeginning' => true // по умолчанию false, новые записи добавляются в конец списка
+            ]
+        ...    
+        ];
     }
     
-    public function myFunction () {
-        $sortableService = $this->getSortableService();
-        
-        // запись будет первой в списке
-        $sortableService->addToBeginning();
-        
-        // запись будет последней в списке
-        $sortableService->addToEnd();
-        
-        // запись в списке будет выведена после записи с id = 1
-        $sortableService->previous_id = 1;
-        $sortableService->changeSort();
-        
-        // просто упорядочить записи в БД, например, когда в поле sort есть пустые значения
-        $sortableService->updateSort();
+    /**
+    * @return array|string|null условие where для сортировки, например ['parent_id' => $this->parent_id]
+    */
+    public function sortableCondition() 
+    {
+        return null;
     }
 }
 ```
+
+Поведение SortableBehavior обрабатывает события afterDelete и afterInsert
+```php
+    public function events(): array
+    {
+        return [
+            BaseActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
+            BaseActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
+        ];
+    }
+```
+
+Если в своей модели вы также обрабатываете эти события, то логику для изменения порядка сортировки, после создания, или удаления новой записи необходимо реализовать самостоятельно, например:
+
+```php
+    public fuction afterDelete
+    {
+        ...
+        $service = ale10257\sortable\ServiceFactory::getServiceFromModel($this);
+        $service->delete();
+    }
+
+```
+
 
 **Unit тесты (запустить команду в корне папки с виджетом):**
 

@@ -2,13 +2,11 @@
 
 use ale10257\sortable\BaseService;
 use ale10257\sortable\ServiceFactory;
-use ale10257\sortable\SortableBehavior;
-use ale10257\sortable\SortableService;
-use ale10257\sortable\SortableServicePostgres;
 use ale10257\sortable\testModels\SortModel;
 use ale10257\sortable\testModels\SortModelCounter;
 use Codeception\Test\Unit;
 use Ramsey\Uuid\Uuid;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 
 class SortTest extends Unit
@@ -81,6 +79,32 @@ class SortTest extends Unit
         $this->createDataIdIsInt();
         $this->modelClass = SortModelCounter::class;
         $this->sort();
+    }
+
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testSortWithoutCondition()
+    {
+        $this->createDataIdIsInt();
+        $models = SortModelCounter::find()->orderBy(['sort' => SORT_ASC])->all();
+        foreach ($models as $model) {
+            $model->sort = null;
+            $model->save();
+        }
+        $this->modelClass = SortModelCounter::class;
+        $model = $this->getModel();
+        $service = $this->getService($model);
+        $service->condition = [];
+        $service->updateSort();
+        $models = SortModelCounter::find()->orderBy(['sort' => SORT_ASC])->all();
+        $sort = 10;
+        foreach ($models as $model) {
+            $this->tester->assertEquals($sort, $model->sort);
+            $sort += 10;
+        }
     }
 
     public function testPreviousIdNum()
@@ -210,7 +234,7 @@ class SortTest extends Unit
     }
 
     /**
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function getService(SortModel $model): BaseService
     {

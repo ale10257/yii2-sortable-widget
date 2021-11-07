@@ -17,7 +17,7 @@ abstract class BaseService
     /**
      * @var array|string
      */
-    protected $condition;
+    public $condition;
     protected ActiveRecord $model;
 
 

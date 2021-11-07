@@ -102,20 +102,14 @@ class SortableService extends BaseService
 
     public function updateSort()
     {
-        $check = $this->model::find()
-            ->where($this->condition)
-            ->andWhere(['or', [$this->sortField => null], ['<=', $this->sortField, 0]])
-            ->exists();
-        if ($check) {
-            $step = $this->step;
-            foreach ($this->model::find()
-                         ->where($this->condition)
-                         ->orderBy(['id' => SORT_ASC, $this->sortField => SORT_ASC])
-                         ->all() as $model) {
-                $model->{$this->sortField} = $step;
-                $model->save();
-                $step += $this->step;
-            }
+        $step = $this->step;
+        foreach ($this->model::find()
+                     ->where($this->condition)
+                     ->orderBy(['id' => SORT_ASC, $this->sortField => SORT_ASC])
+                     ->all() as $model) {
+            $model->{$this->sortField} = $step;
+            $model->save();
+            $step += $this->step;
         }
     }
 }
