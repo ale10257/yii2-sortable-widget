@@ -96,12 +96,12 @@ class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortab
 С сервисом ```SortableService``` можно работать напрямую из модели
 
 ```php
-use ale10257\sortable\SortableService
+use ale10257\sortable\SortableServicePostgres
 
 class MyModel extends \yii\db\ActiveRecord implements \ale10257\sortable\ISortableModel 
 {
     public function getSortableService() {
-        $service = new SortableService($this);
+        $service = new SortableServicePostgres($this);
         $service->condition = $this->sortableCondition();
         return $service;
     }

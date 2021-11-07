@@ -1,11 +1,14 @@
 <?php
 
-use ale10257\sortable\ISortableModel;
+use ale10257\sortable\BaseService;
+use ale10257\sortable\ServiceFactory;
+use ale10257\sortable\SortableBehavior;
 use ale10257\sortable\SortableService;
+use ale10257\sortable\SortableServicePostgres;
 use ale10257\sortable\testModels\SortModel;
-use ale10257\sortable\testModels\SortModelI;
-use Ramsey\Uuid\Uuid;
+use ale10257\sortable\testModels\SortModelCounter;
 use Codeception\Test\Unit;
+use Ramsey\Uuid\Uuid;
 use yii\db\Exception;
 
 class SortTest extends Unit
@@ -13,10 +16,9 @@ class SortTest extends Unit
     protected UnitTester $tester;
 
     /**
-     * @var string|null|SortModel
+     * @var string|null|SortModel|SortModelCounter
      */
     private ?string $modelClass = null;
-    private bool $condition = true;
 
     /**
      * @throws Exception
@@ -33,12 +35,12 @@ class SortTest extends Unit
             'sort' => 'integer'
         ])->execute();
         for ($parent_id = 1; $parent_id < 4; $parent_id++) {
-            $model = new SortModel();
+            $model = new SortModelCounter();
             $model->id = $parent_id;
             $model->save();
         }
         for ($child_id = 5; $child_id < 8; $child_id++) {
-            $model = new SortModel();
+            $model = new SortModelCounter();
             $model->id = $child_id;
             $model->parent_id = 1;
             $model->save();
@@ -69,46 +71,18 @@ class SortTest extends Unit
         Yii::$app->db->createCommand()->dropTable(SortModel::tableName())->execute();
     }
 
-    /**
-     * @throws Exception
-     */
-    public function testSort()
-    {
-        $this->modelClass = SortModel::class;
-        $this->sort();
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testSortI()
-    {
-        $this->modelClass = SortModelI::class;
-        $this->sort();
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testSortWithoutCondition()
-    {
+    public function testSort() {
         $this->createDataIdIsInt();
         $this->modelClass = SortModel::class;
-        $this->condition = false;
-        $model = $this->getModel();
-        $service = $this->getService($model);
-        $service->updateSort();
-        $models = $this->getModels();
-        $sort = 10;
-        foreach ($models as $model) {
-            $this->tester->assertEquals($sort, $model->sort);
-            $sort += 10;
-        }
+        $this->sort();
     }
 
-    /**
-     * @throws Exception
-     */
+    public function testSortCounter() {
+        $this->createDataIdIsInt();
+        $this->modelClass = SortModelCounter::class;
+        $this->sort();
+    }
+
     public function testPreviousIdNum()
     {
         $this->createDataIdIsInt();
@@ -120,9 +94,6 @@ class SortTest extends Unit
         $service->changeSort();
     }
 
-    /**
-     * @throws Exception
-     */
     public function testPreviousIdNotFound()
     {
         $this->createDataIdIsInt();
@@ -134,9 +105,6 @@ class SortTest extends Unit
         $service->changeSort();
     }
 
-    /**
-     * @throws Exception
-     */
     public function testSortUuid()
     {
         $this->modelClass = SortModel::class;
@@ -161,17 +129,23 @@ class SortTest extends Unit
         $this->tester->assertEquals($startUuid, $models[0]->id);
     }
 
-    /**
-     * @throws Exception
-     */
     private function sort()
     {
-        $this->createDataIdIsInt();
-        // parent_id is null
-        $model = $this->getModel();
+        $models = $this->getModels();
+        $this->checkSortOrder($models);
+
+        $models = $this->getModels();
+        foreach ($models as $model) {
+            $model->sort = null;
+            $model->save();
+        }
         $service = $this->getService($model);
         $service->updateSort();
+
         $models = $this->getModels();
+        $this->tester->assertEquals(1, $models[0]->id);
+        $this->tester->assertEquals(2, $models[1]->id);
+        $this->tester->assertEquals(3, $models[2]->id);
         $this->checkSortOrder($models);
 
         $model = $this->getModel(3);
@@ -203,7 +177,6 @@ class SortTest extends Unit
         $this->tester->assertEquals(2, $models[2]->id);
         $this->checkSortOrder($models);
 
-        // parent_id is integer
         $model = $this->getModel(5);
         $service = $this->getService($model);
         $service->updateSort();
@@ -212,6 +185,14 @@ class SortTest extends Unit
         $this->tester->assertEquals(6, $models[1]->id);
         $this->tester->assertEquals(7, $models[2]->id);
         $this->checkSortOrder($models);
+
+        $model = $this->getModel(1);
+        $model->delete();
+        $models = $this->getModels();
+        $this->tester->assertEquals(3, $models[0]->id);
+        $this->tester->assertEquals(2, $models[1]->id);
+        $this->tester->assertEquals(10, $models[0]->sort);
+        $this->tester->assertEquals(20, $models[1]->sort);
     }
 
     /**
@@ -220,11 +201,7 @@ class SortTest extends Unit
      */
     private function getModels(?int $parent_id = null): array
     {
-        $query = $this->modelClass::find()->orderBy(['sort' => SORT_ASC]);
-        if ($this->condition) {
-            $query->where(['parent_id' => $parent_id]);
-        }
-        return $query->all();
+        return $this->modelClass::find()->orderBy(['sort' => SORT_ASC])->where(['parent_id' => $parent_id])->all();
     }
 
     private function getModel(int $id = null): ?SortModel
@@ -232,13 +209,12 @@ class SortTest extends Unit
         return $id ? $this->modelClass::findOne($id) : new $this->modelClass();
     }
 
-    private function getService(SortModel $model): SortableService
+    /**
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function getService(SortModel $model): BaseService
     {
-        $service = new SortableService($model);
-        if ($this->condition && !$model instanceof ISortableModel) {
-            $service->condition = ['parent_id' => $model->parent_id];
-        }
-        return $service;
+        return ServiceFactory::getServiceFromModel($model);
     }
 
     /**

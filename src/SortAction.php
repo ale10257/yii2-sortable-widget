@@ -12,8 +12,6 @@ use yii\web\NotFoundHttpException;
 class SortAction extends Action
 {
     public ?string $modelClass = null;
-    public ?string $sortField = null;
-    public ?string $conditionAttribute = null;
 
     /**
      * @throws Exception
@@ -32,15 +30,9 @@ class SortAction extends Action
             if (!$model) {
                 throw new NotFoundHttpException();
             }
-            $sortableService = new SortableService($model);
-            if ($this->conditionAttribute) {
-                $sortableService->condition = [$this->conditionAttribute => $model->{$this->conditionAttribute}];
-            }
-            $sortableService->previous_id = $post['previous_id'];
-            if ($this->sortField) {
-                $sortableService->sortField = $this->sortField;
-            }
-            $sortableService->changeSort();
+            $service = ServiceFactory::getServiceFromModel($model);;
+            $service->previous_id = $post['previous_id'];
+            $service->changeSort();
         }
     }
 }
