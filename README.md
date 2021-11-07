@@ -1,6 +1,6 @@
 ### Yi2 sortable widget based on <a href="https://github.com/SortableJS/Sortable">sortablejs</a>
 
-The widget is a wrapper over sortablejs that allows you to drag and drop any elements on the html page
+The widget is a wrapper over sortablejs that allows you to drag and drop any elements on the html page.  
 Also, the widget includes two services (SortableServicePostgres and SortableService) for working with the database. That is, after dragging and dropping elements on the page, the sorting order in the database also changes.
 
 **Service differences**
