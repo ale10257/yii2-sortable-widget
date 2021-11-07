@@ -8,7 +8,7 @@ Also, the widget includes two services (SortableServicePostgres and SortableServ
 1. SortableServicePostgres works only with Postgres DB, SortableService with any DB supported by Yii2
 2. SortableServicePostgres always has a sorting step of 10, in SortableService the step can be configured
 
-Installing: ```composer require ale10257/yii2-sortable-widget```
+**Installation widget**: ```composer require ale10257/yii2-sortable-widget```
 
 **Usage**
 
